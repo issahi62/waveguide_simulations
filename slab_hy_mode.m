@@ -6,8 +6,9 @@ clear
 %% developed by issah ibrahim 
 
 %% sparse matrix 
-M=8;
+M=6;
 N =100; 
+% Helmotz equation
 A = zeros(N,N); 
 for i = 1:N
     A(i, i) = -2; 
@@ -19,7 +20,8 @@ for i = 1:N-1
 end 
 da=.2;
 lambda =1; 
-ko = 2*pi/lambda; 
+ko = 2*pi/lambda;
+% fdtd DX2 formulation
 Dx2 = A/(ko*da)^2;
 
 % dielectric 
@@ -44,32 +46,44 @@ eps(nx1:nx2, ny1:ny2) = 1;
 
 epsa = eps*n2 + (1-eps)*n1; 
 
+% forming the slab waveguide
 epsa_act = diag(epsa); 
+%% addition of metal sections
+epsa_act(1) = 0; 
+epsa_act(end) =0; 
 eps = epsa_act.*eye(N, N);
 
-
+% Matrix formulation
 Amat = Dx2+eps^2; 
 
+% eigen mode and eigen vectors 
 [V, D] = eig(Amat); 
 NEFF = sqrt(diag(D)); 
+% sorting to arrange the vectors
 [~,ind] = sort(real(NEFF),'descend');
 V = V(:,ind);
 NEFF = NEFF(ind);
-
-a = 4; 
+        %      |
+a = 4;  % ----------- 
+        %      |
+        %      |
 b = 4;
 % DRAW SLAB WAVEGUIDE
+% using the fill command. you can also use the polyfill command
 x = [0 2*(M+1) 2*(M+1) 0 0];
 y = [ -b-a/2 -b-a/2 b+a/2 b+a/2 -b-a/2 ];
 fill(x,y,0.9*[1 1 1]);
 y = [ -a/2 -a/2 a/2 a/2 -a/2 ];
-fill(x,y,0.5*[1 1 1]);
+% fill [R, G, B] color
+fill(x,y,0.5*[1 2 1]);
+
+%%  Plotting section of the codes
 % DRAW AND LABEL MODES
  
 for m = 1 : M
 x0 = 2*m;
 y0 = (a + b)/2;
-x = x0 + 3*V(:,m);
+x = x0 + 4*V(:,m);
 y = linspace(-b-a/2,b+a/2,N);
 line(x,y,'Color','w','LineWidth',4);
 h = line(x,y,'Color','b','LineWidth',2);
